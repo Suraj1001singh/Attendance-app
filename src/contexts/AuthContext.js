@@ -10,6 +10,7 @@ const AuthContext = createContext({
   signInWithGoogle: () => Promise,
   forgotPassword: () => Promise,
   resetPassword: () => Promise,
+  updateProfile: () => Promise
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -29,15 +30,8 @@ export default function AuthContextProvider({ children }) {
   }, []);
  
   function register(email, password) {
-    return createUserWithEmailAndPassword(auth, email, password).then((res) => {
-      const { email, uid, displayName } = auth.currentUser;
-      const userRef = ref(getDatabase(), `attend-it/${uid}/profile`);
-      set(userRef, {
-        username: displayName,
-        email: email,
-        uid: uid,
-      });
-    });
+    return createUserWithEmailAndPassword(auth, email, password);
+
   }
   function login(email, password) {
     return signInWithEmailAndPassword(auth, email, password);
@@ -47,15 +41,7 @@ export default function AuthContextProvider({ children }) {
   }
   function signInWithGoogle() {
     const provider = new GoogleAuthProvider();
-    return signInWithPopup(auth, provider).then((res) => {
-      const { email, uid, displayName } = auth.currentUser;
-      const userRef = ref(getDatabase(), `attend-it/${uid}/profile`);
-      set(userRef, {
-        username: displayName,
-        email: email,
-        uid: uid,
-      });
-    });
+    signInWithPopup(auth, provider);
   }
   function forgotPassword(email) {
     return sendPasswordResetEmail(auth, email, { url: "http://localhost:3000/login" });
@@ -63,6 +49,11 @@ export default function AuthContextProvider({ children }) {
   function resetPassword(oobcode, newPassword) {
     return confirmPasswordReset(auth, oobcode, newPassword);
   }
-  const value = { currentUser, register, login, logout, signInWithGoogle, forgotPassword, resetPassword };
+  function updateProfileName(name) {
+    return updateProfile(auth.currentUser, {
+      displayName: name,
+    });
+  }
+  const value = { currentUser, register, login, logout, signInWithGoogle, forgotPassword, resetPassword, updateProfileName };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

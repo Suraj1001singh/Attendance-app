@@ -1,30 +1,41 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../../../contexts/AuthContext";
-import { Checkbox, Container, Modal, ModalOverlay, ModalContent, ModalBody, ModalHeader, ModalCloseButton } from "@chakra-ui/react";
+import { useProfile } from "../../../contexts/ProfileContext";
+import { Container  } from "@chakra-ui/react";
 import { Card } from "../../Card/Card";
 import CheckBoxList from "./checkBoxList";
-import { Button, chakra, FormControl, FormLabel, Heading, HStack, Input, Stack, useToast, Text, Box, Flex } from "@chakra-ui/react";
+import { Button, chakra, FormControl, FormLabel, Heading, Input, Stack, useToast } from "@chakra-ui/react";
 
 const Profile = () => {
   const [name, setName] = useState("");
   const [isNameInvalid, setIsNameInvalid] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [enableUpdateButton, setEnableUpdateButton] = useState(true);
-  const [courses, setCourses] = useState(["BCA", "BBA", "MCA", "BTECH", "MBBS"]);
+  const [courses, setCourses] = useState([]);
   const [subjects, setSubjects] = useState([]);
-  const [semesters, setSemesters] = useState(["1", "2","3"]);
-  const { currentUser } = useAuth();
+  const [semesters, setSemesters] = useState([]);
+  const { currentUser, updateProfileName } = useAuth();
+  const { getProfile, updateProfile, profile } = useProfile();
+  const toast = useToast();
+
+  useEffect (() => {
+    getProfile();
+  } , [])
+
   useEffect(() => {
     setName(currentUser?.displayName);
-  }, [currentUser])
-
+    if (profile) {
+      setSubjects(profile.subjects || []);
+      setSemesters(profile.semesters || []);
+      setCourses(profile.courses || []);
+    }
+  }, [currentUser, profile]);
   const handleNameChange = (event) => {
     let name = event.target.value;
-    name = name.trim();
     setName(name);
-    if(!name) {
+    if(name?.trim()?.length <= 0) {
       setIsNameInvalid(true);
       setEnableUpdateButton(false)
-      return;
     } else {
       setEnableUpdateButton(true);
       setIsNameInvalid(false);
@@ -35,8 +46,13 @@ const Profile = () => {
     if(!enableUpdateButton) {
       return;
     }
-    
+    setIsSubmitting(true);
+    updateProfileName(name);
+    updateProfile({ subjects, semesters, courses });
+    toast({ description: "Profile details updated", status: "success", duration: 5000, isClosable: true });
+    setIsSubmitting(false);
   }
+
   return (
     <>
       {/* <Navbar /> */}
@@ -58,7 +74,7 @@ const Profile = () => {
             <CheckBoxList label="Course" options={courses} setOptions={setCourses}/>
             <CheckBoxList label="Semester" options={semesters} setOptions={setSemesters}/>
             <CheckBoxList label="Subject" options={subjects} setOptions={setSubjects}/>
-            <Button onClick={handleProfileUpdate} disabled={!enableUpdateButton}  colorScheme="primary" size="lg" fontSize="md">
+            <Button isLoading={isSubmitting} onClick={handleProfileUpdate} disabled={!enableUpdateButton}  colorScheme="primary" size="lg" fontSize="md">
               Update
             </Button>
           </Stack>
