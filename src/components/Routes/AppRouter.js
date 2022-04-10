@@ -17,7 +17,7 @@ const AppRouter = () => {
       <Router>
         {currentUser && <Navbar />}
         <Switch>
-          <Route exact path="/" component={Home} />
+          <ProtectedRoute exact path="/" component={Home} />
           <ProtectedRoute exact path="/login" component={Login} />
           <ProtectedRoute exact path="/register" component={Register} />
           <ProtectedRoute exact path="/profile" component={Profile} />
