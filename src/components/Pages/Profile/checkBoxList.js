@@ -10,9 +10,15 @@ const [newOption, setNewOption] = useState("");
     setIsAddOptionOpen(false);
   };
   const handleNewOptionAdd = () => {
-    setOptions([...options, newOption]);
+    if(!options.find(option => option === newOption)) {
+        setOptions([...options, newOption]);
+    };
     setNewOption("");
     setIsAddOptionOpen(false);
+  }
+
+  const handleCheckboxChange = (option) => {
+    setOptions(options.filter(item => item !== option));
   }
   return (
     <FormControl id={label.toLowerCase()}>
@@ -21,9 +27,10 @@ const [newOption, setNewOption] = useState("");
             {options.map((option, index) => {
                 return (
                     <Checkbox
-                        key={index}
-                        name={label}
+                        key={option}
                         value={option}
+                        defaultChecked
+                        onChange={() => handleCheckboxChange(option)}
                     >
                         {option}
                     </Checkbox>

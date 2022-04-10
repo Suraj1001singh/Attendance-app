@@ -58,7 +58,7 @@ const Profile = () => {
             <CheckBoxList label="Course" options={courses} setOptions={setCourses}/>
             <CheckBoxList label="Semester" options={semesters} setOptions={setSemesters}/>
             <CheckBoxList label="Subject" options={subjects} setOptions={setSubjects}/>
-            <Button onClick={handleProfileUpdate} disabled={!enableUpdateButton} type="submit" colorScheme="primary" size="lg" fontSize="md">
+            <Button onClick={handleProfileUpdate} disabled={!enableUpdateButton}  colorScheme="primary" size="lg" fontSize="md">
               Update
             </Button>
           </Stack>
