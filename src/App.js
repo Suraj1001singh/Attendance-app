@@ -1,11 +1,14 @@
 import "./App.css";
 import AppRouter from "./components/Routes/AppRouter";
 import AuthContextProvider from "./contexts/AuthContext";
+import AttendanceContextProvider from "./contexts/AttendanceContext";
 
 function App() {
   return (
     <AuthContextProvider>
-      <AppRouter />
+      <AttendanceContextProvider>
+        <AppRouter />
+      </AttendanceContextProvider>
     </AuthContextProvider>
   );
 }
