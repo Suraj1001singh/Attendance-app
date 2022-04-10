@@ -81,7 +81,6 @@ const ModalOffline = ({ isOpen, onOpen, onClose, setIsQrGenerated, setQrData, at
       return toast({ description: "Credential not valid", status: "error", duration: 5000, isClosable: true });
     }
   };
-  console.log("hii", availableCourses, availableSems, availableSubjects);
   return (
     <>
       <Modal initialFocusRef={initialRef} finalFocusRef={finalRef} isOpen={isOpen}>
