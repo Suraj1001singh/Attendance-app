@@ -8,7 +8,7 @@ export default function Navbar() {
   const { toggleColorMode } = useColorMode();
   const { logout, currentUser } = useAuth();
   return (
-    <Box borderBottom="2px" borderBottomColor={useColorModeValue("gray.100", "gray.700")} mb={4}>
+    <Box borderBottom="2px" borderBottomColor={useColorModeValue("gray.100", "gray.700")}>
       <HStack py={4} justifyContent="flex-end" maxW="container.lg" mx="auto">
         <Navlink to="/" name="Attend-It" size="lg" />
         <Spacer />
