@@ -103,7 +103,7 @@ const ModalOffline = ({ isOpen, onOpen, onClose, setIsQrGenerated, setQrData, at
             date = time();
             setCurrPath(`attendance/${selectedCourse}/${selectedSem}/${selectedSubject}/${days}`);
             if (attendanceType == 1) setQrData(`${auth.currentUser.uid}/${selectedCourse}/${selectedSem}/${selectedSubject}/${days}/${date}`);
-            else setQrData(`${selectedCourse}/${selectedSem}/${selectedSubject}/${days}/${date}/${lat}/${long}`);
+            else setQrData(`${auth.currentUser.uid}/${selectedCourse}/${selectedSem}/${selectedSubject}/${days}/${date}/${lat}/${long}`);
             setIsQrGenerated(true);
             setIsSubmitting(false);
             onClose();
