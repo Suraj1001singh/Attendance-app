@@ -3,15 +3,19 @@ import AdapterMoment from "@mui/lab/AdapterMoment";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import DateTimePicker from "@mui/lab/DateTimePicker";
 import moment from "moment";
+import { auth } from "../../../config/firebase_config";
 import { TextField } from "@mui/material";
 import { chakra, Button, Grid, Text, useToast, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure, FormControl, FormLabel, Input, Select, toast } from "@chakra-ui/react";
 import LiveAttendace from "./LiveAttendace";
+import { useAttendance } from "../../../contexts/AttendanceContext";
 const Home = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [availableSubjects, setavailableSubjects] = React.useState(["mp", "ds", "os"]);
+  const [availableSems, setavailableSems] = React.useState(["sem1", "sem2", "sem3"]);
+  const [availableCourses, setavailableCourses] = React.useState(["mca", "mba", "btech"]);
   const [isQrGenerated, setIsQrGenerated] = React.useState(false);
   const [qrData, setQrData] = React.useState({});
   const [attendanceType, setAttendaceType] = React.useState(-1);
-  console.log(qrData);
 
   return (
     <>
@@ -50,13 +54,14 @@ const Home = () => {
           <LiveAttendace setIsQrGenerated={setIsQrGenerated} qrData={qrData} />
         )}
       </Grid>
-      <ModalOffline isOpen={isOpen} onOpen={onOpen} onClose={onClose} setIsQrGenerated={setIsQrGenerated} setQrData={setQrData} attendanceType={attendanceType} />
+      <ModalOffline isOpen={isOpen} onOpen={onOpen} onClose={onClose} setIsQrGenerated={setIsQrGenerated} setQrData={setQrData} attendanceType={attendanceType} availableSubjects={availableSubjects} availableSems={availableSems} availableCourses={availableCourses} />
     </>
   );
 };
-const ModalOffline = ({ isOpen, onOpen, onClose, setIsQrGenerated, setQrData, attendanceType }) => {
+const ModalOffline = ({ isOpen, onOpen, onClose, setIsQrGenerated, setQrData, attendanceType, availableSubjects, availableSems, availableCourses }) => {
   const initialRef = React.useRef();
   const finalRef = React.useRef();
+  const { liveAttendance, setCurrPath } = useAttendance();
   const toast = useToast();
   const [date, setDate] = React.useState("");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -96,7 +101,8 @@ const ModalOffline = ({ isOpen, onOpen, onClose, setIsQrGenerated, setQrData, at
                 return +new Date();
               };
             date = time();
-            if (attendanceType == 1) setQrData(`${selectedCourse}/${selectedSem}/${selectedSubject}/${days}/${date}`);
+            setCurrPath(`attendance/${selectedCourse}/${selectedSem}/${selectedSubject}/${days}`);
+            if (attendanceType == 1) setQrData(`${auth.currentUser.uid}/${selectedCourse}/${selectedSem}/${selectedSubject}/${days}/${date}`);
             else setQrData(`${selectedCourse}/${selectedSem}/${selectedSubject}/${days}/${date}/${lat}/${long}`);
             setIsQrGenerated(true);
             setIsSubmitting(false);
@@ -111,9 +117,11 @@ const ModalOffline = ({ isOpen, onOpen, onClose, setIsQrGenerated, setQrData, at
                 <FormLabel>Course Name</FormLabel>
                 {/* <Input ref={initialRef} placeholder="First name" /> */}
                 <Select isRequired placeholder="Select Course" value={selectedCourse} onChange={(e) => setSelectedCourse(e.target.value)}>
-                  <option value="option1">Option 1</option>
-                  <option value="option2">Option 2</option>
-                  <option value="option3">Option 3</option>
+                  {availableCourses.map((item, index) => (
+                    <option key={index} value={item}>
+                      {item}
+                    </option>
+                  ))}
                 </Select>
               </FormControl>
 
@@ -121,18 +129,22 @@ const ModalOffline = ({ isOpen, onOpen, onClose, setIsQrGenerated, setQrData, at
                 <FormLabel>Semester</FormLabel>
                 {/* <Input ref={initialRef} placeholder="First name" /> */}
                 <Select placeholder="Select Semester" value={selectedSem} onChange={(e) => setSelectedSem(e.target.value)}>
-                  <option value="option1">Option 1</option>
-                  <option value="option2">Option 2</option>
-                  <option value="option3">Option 3</option>
+                  {availableSems.map((item, index) => (
+                    <option key={index} value={item}>
+                      {item}
+                    </option>
+                  ))}
                 </Select>
               </FormControl>
               <FormControl mt={4}>
                 <FormLabel>Subject Name</FormLabel>
                 {/* <Input ref={initialRef} placeholder="First name" /> */}
                 <Select placeholder="Select Subject" value={selectedSubject} onChange={(e) => setSelectedSubject(e.target.value)}>
-                  <option value="option1">Option 1</option>
-                  <option value="option2">Option 2</option>
-                  <option value="option3">Option 3</option>
+                  {availableSubjects.map((item, index) => (
+                    <option key={index} value={item}>
+                      {item}
+                    </option>
+                  ))}
                 </Select>
               </FormControl>
 
