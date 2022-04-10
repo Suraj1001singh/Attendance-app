@@ -10,6 +10,10 @@ const [newOption, setNewOption] = useState("");
     setIsAddOptionOpen(false);
   };
   const handleNewOptionAdd = () => {
+    if(!newOption?.trim().length > 0) {
+        setNewOption("");
+        return;
+    }
     if(!options.find(option => option === newOption)) {
         setOptions([...options, newOption]);
     };
@@ -52,7 +56,9 @@ const [newOption, setNewOption] = useState("");
                     <Stack spacing="6">
                         <FormControl id="name">
                             <FormLabel>Name</FormLabel>
-                            <Input value={newOption} onChange={(event) => setNewOption(event.target.value)}/>
+                            <Input value={newOption} onChange={(event) => {
+                                setNewOption(event.target.value)
+                            }}/>
                         </FormControl>
                         <Button onClick={handleNewOptionAdd} colorScheme="primary" float={"right"} fontSize="md">
                             Add
