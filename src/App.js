@@ -8,9 +8,9 @@ function App() {
   return (
     <AuthContextProvider>
       <AttendanceContextProvider>
-      <ProfileContextProvider>
-      <AppRouter />
-      </ProfileContextProvider>
+        <ProfileContextProvider>
+          <AppRouter />
+        </ProfileContextProvider>
       </AttendanceContextProvider>
     </AuthContextProvider>
   );
