@@ -2,7 +2,7 @@ import { Button, Center, chakra, FormControl, FormLabel, Heading, Input, Stack, 
 import React, { useEffect, useRef, useState } from "react";
 import { FaGoogle } from "react-icons/fa";
 import { useHistory } from "react-router-dom";
-import { Card } from "../Card";
+import { Card } from "../../../Card/Card";
 import DividerWithText from "../DividerWithText";
 import { Layout } from "../Layout";
 import { useAuth } from "../../../../contexts/AuthContext";

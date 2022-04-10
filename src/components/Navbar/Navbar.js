@@ -14,8 +14,8 @@ export default function Navbar() {
         <Spacer />
         {!currentUser && <Navlink to="/login" name="Login" />}
         {!currentUser && <Navlink to="/register" name="Register" />}
-        {/* {currentUser && <Navlink to="/profile" name="Profile" />} */}
         {currentUser && <Navlink to="/protected-page" name="Dashboard" />}
+        {currentUser && <Navlink to="/profile" name="Profile" />}
         {currentUser && (
           <Navlink
             to="/logout"

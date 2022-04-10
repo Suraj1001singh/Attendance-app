@@ -1,7 +1,7 @@
 import { Button, Center, chakra, FormControl, FormLabel, Heading, Input, Stack, useToast } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
-import { Card } from "../Card";
+import { Card } from "../../../Card/Card";
 import DividerWithText from "../DividerWithText";
 import { Layout } from "../Layout";
 import { useAuth } from "../../../../contexts/AuthContext";
