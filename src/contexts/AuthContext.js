@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { auth } from "../config/firebase_config";
-import { getDatabase, ref, set, updateProfile
-  , createUserWithEmailAndPassword, confirmPasswordReset, sendPasswordResetEmail, signInWithPopup, GoogleAuthProvider, signOut, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { set, ref, getDatabase } from "firebase/database";
+import { createUserWithEmailAndPassword, confirmPasswordReset, sendPasswordResetEmail, signInWithPopup, GoogleAuthProvider, signOut, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 const AuthContext = createContext({
   currentUser: null,
   register: () => Promise,
@@ -17,16 +17,18 @@ export const useAuth = () => useContext(AuthContext);
 
 export default function AuthContextProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
+  const [userData, setUserData] = useState({});
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
     });
     return () => {
-      console.log("unmounting ");
+      // console.log("unmounting ");
       return unsubscribe;
     };
   }, []);
+ 
   function register(email, password) {
     return createUserWithEmailAndPassword(auth, email, password);
 

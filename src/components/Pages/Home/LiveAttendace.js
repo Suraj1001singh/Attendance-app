@@ -1,8 +1,10 @@
 import { Grid, Text, Button } from "@chakra-ui/react";
 import React, { useEffect } from "react";
 import QRCode from "qrcode";
+import { useAttendance } from "../../../contexts/AttendanceContext";
 
 const LiveAttendace = ({ setIsQrGenerated, qrData }) => {
+  const { liveAttendance } = useAttendance();
   const [src, setSrc] = React.useState("");
   useEffect(() => {
     const GenerateQrCode = async () => {
@@ -23,12 +25,7 @@ const LiveAttendace = ({ setIsQrGenerated, qrData }) => {
         Live Atendance
       </Text>
       <Grid h="100%" w="100%" paddingTop="60px">
-        <div>
-          <CustomStudent rollno="12121212" name="suraj" />
-          <CustomStudent rollno="12121212" name="suraj" />
-          <CustomStudent rollno="12121212" name="suraj" />
-          <CustomStudent rollno="12121212" name="suraj" />
-        </div>
+        <div>{liveAttendance.length !== 0 ? liveAttendance?.map((student, index) => <CustomStudent key={index} rollno={student?.rollno} name={student?.name} />) : <div>No student</div>}</div>
       </Grid>
       <Grid>
         <img style={{ height: "350px", width: "auto" }} src={src}></img>
