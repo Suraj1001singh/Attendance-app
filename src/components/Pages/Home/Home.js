@@ -4,12 +4,13 @@ import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import DateTimePicker from "@mui/lab/DateTimePicker";
 import moment from "moment";
 import { TextField } from "@mui/material";
-import { chakra, Button, Grid, Text, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure, FormControl, FormLabel, Input, Select, toast } from "@chakra-ui/react";
+import { chakra, Button, Grid, Text, useToast, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure, FormControl, FormLabel, Input, Select, toast } from "@chakra-ui/react";
 import LiveAttendace from "./LiveAttendace";
 const Home = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isQrGenerated, setIsQrGenerated] = React.useState(false);
   const [qrData, setQrData] = React.useState({});
+  const [attendanceType, setAttendaceType] = React.useState(-1);
   console.log(qrData);
 
   return (
@@ -20,10 +21,28 @@ const Home = () => {
             <Text fontSize="2xl" color="gray.500" align="center">
               Select the Mode of Attendance
             </Text>
-            <Button w="fit-content" colorScheme="primary" size="lg" fontSize="md" onClick={onOpen}>
+            <Button
+              w="fit-content"
+              colorScheme="primary"
+              size="lg"
+              fontSize="md"
+              onClick={() => {
+                setAttendaceType(1);
+                onOpen();
+              }}
+            >
               Take Online Attendance
             </Button>
-            <Button w="fit-content" colorScheme="primary" size="lg" fontSize="md">
+            <Button
+              w="fit-content"
+              colorScheme="primary"
+              size="lg"
+              fontSize="md"
+              onClick={() => {
+                setAttendaceType(2);
+                onOpen();
+              }}
+            >
               Take Offline Attendance
             </Button>
           </Grid>
@@ -31,20 +50,32 @@ const Home = () => {
           <LiveAttendace setIsQrGenerated={setIsQrGenerated} qrData={qrData} />
         )}
       </Grid>
-      <ModalOffline isOpen={isOpen} onOpen={onOpen} onClose={onClose} setIsQrGenerated={setIsQrGenerated} setQrData={setQrData} />
+      <ModalOffline isOpen={isOpen} onOpen={onOpen} onClose={onClose} setIsQrGenerated={setIsQrGenerated} setQrData={setQrData} attendanceType={attendanceType} />
     </>
   );
 };
-const ModalOffline = ({ isOpen, onOpen, onClose, setIsQrGenerated, setQrData }) => {
+const ModalOffline = ({ isOpen, onOpen, onClose, setIsQrGenerated, setQrData, attendanceType }) => {
   const initialRef = React.useRef();
   const finalRef = React.useRef();
+  const toast = useToast();
   const [date, setDate] = React.useState("");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [selectedCourse, setSelectedCourse] = React.useState("");
   const [selectedSubject, setSelectedSubject] = React.useState("");
   const [selectedSem, setSelectedSem] = React.useState("");
+  const [lat, setLat] = React.useState("");
+  const [long, setLong] = React.useState("");
   const [errors, setErrors] = React.useState();
-
+  const GetLocation = () => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(function (position) {
+        setLat(position.coords.latitude);
+        setLong(position.coords.longitude);
+      });
+    } else {
+      return toast({ description: "Credential not valid", status: "error", duration: 5000, isClosable: true });
+    }
+  };
   return (
     <>
       <Modal initialFocusRef={initialRef} finalFocusRef={finalRef} isOpen={isOpen}>
@@ -52,7 +83,7 @@ const ModalOffline = ({ isOpen, onOpen, onClose, setIsQrGenerated, setQrData }) 
         <chakra.form
           onSubmit={async (e) => {
             e.preventDefault();
-            if (selectedCourse.trim() === "" || selectedSem.trim() === "" || selectedSubject.trim() === "") {
+            if (selectedCourse.trim() === "" || selectedSem.trim() === "" || selectedSubject.trim() === "" || (attendanceType == 2 && lat === "") || (attendanceType == 2 && long === "")) {
               toast({ description: "Please, Select all fields", status: "error", duration: 5000, isClosable: true });
             }
             setIsSubmitting(true);
@@ -65,7 +96,8 @@ const ModalOffline = ({ isOpen, onOpen, onClose, setIsQrGenerated, setQrData }) 
                 return +new Date();
               };
             date = time();
-            setQrData(`${selectedCourse}/${selectedSem}/${selectedSubject}/${days}/${date}`);
+            if (attendanceType == 1) setQrData(`${selectedCourse}/${selectedSem}/${selectedSubject}/${days}/${date}`);
+            else setQrData(`${selectedCourse}/${selectedSem}/${selectedSubject}/${days}/${date}/${lat}/${long}`);
             setIsQrGenerated(true);
             setIsSubmitting(false);
             onClose();
@@ -103,6 +135,14 @@ const ModalOffline = ({ isOpen, onOpen, onClose, setIsQrGenerated, setQrData }) 
                   <option value="option3">Option 3</option>
                 </Select>
               </FormControl>
+
+              {attendanceType == 2 && (
+                <FormControl mt={4}>
+                  <Button colorScheme="red" onClick={GetLocation}>
+                    Get Location
+                  </Button>
+                </FormControl>
+              )}
               {/* <FormControl mt={4}>
               <FormLabel>Select Date and Time of class</FormLabel>
             
@@ -121,7 +161,7 @@ const ModalOffline = ({ isOpen, onOpen, onClose, setIsQrGenerated, setQrData }) 
             </ModalBody>
 
             <ModalFooter>
-              <Button isLoading={isSubmitting} colorScheme="blue" mr={3} type="submit">
+              <Button isLoading={isSubmitting} colorScheme="primary" mr={3} type="submit">
                 Generate QR
               </Button>
               <Button onClick={onClose}>Cancel</Button>
