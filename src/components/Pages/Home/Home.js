@@ -3,6 +3,7 @@ import AdapterMoment from "@mui/lab/AdapterMoment";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import DateTimePicker from "@mui/lab/DateTimePicker";
 import moment from "moment";
+import { TiTick } from "react-icons/ti";
 import { auth } from "../../../config/firebase_config";
 import { TextField } from "@mui/material";
 import { chakra, Button, Grid, Text, useToast, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure, FormControl, FormLabel, Input, Select, toast } from "@chakra-ui/react";
@@ -61,7 +62,7 @@ const Home = () => {
 const ModalOffline = ({ isOpen, onOpen, onClose, setIsQrGenerated, setQrData, attendanceType }) => {
   const initialRef = React.useRef();
   const finalRef = React.useRef();
-  const { liveAttendance, setCurrPath, availableCourses, availableSems, availableSubjects } = useAttendance();
+  const { setCurrPath, availableCourses, availableSems, availableSubjects } = useAttendance();
   const toast = useToast();
   const [date, setDate] = React.useState("");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -70,7 +71,7 @@ const ModalOffline = ({ isOpen, onOpen, onClose, setIsQrGenerated, setQrData, at
   const [selectedSem, setSelectedSem] = React.useState("");
   const [lat, setLat] = React.useState("");
   const [long, setLong] = React.useState("");
-  const [errors, setErrors] = React.useState();
+
   const GetLocation = () => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(function (position) {
@@ -78,7 +79,7 @@ const ModalOffline = ({ isOpen, onOpen, onClose, setIsQrGenerated, setQrData, at
         setLong(position.coords.longitude);
       });
     } else {
-      return toast({ description: "Credential not valid", status: "error", duration: 5000, isClosable: true });
+      return toast({ description: "Turn on location ", status: "error", duration: 5000, isClosable: true });
     }
   };
   return (
@@ -88,25 +89,26 @@ const ModalOffline = ({ isOpen, onOpen, onClose, setIsQrGenerated, setQrData, at
         <chakra.form
           onSubmit={async (e) => {
             e.preventDefault();
-            if (selectedCourse.trim() === "" || selectedSem.trim() === "" || selectedSubject.trim() === "" || (attendanceType == 2 && lat === "") || (attendanceType == 2 && long === "")) {
-              toast({ description: "Please, Select all fields", status: "error", duration: 5000, isClosable: true });
+            if ((attendanceType == 2 && lat === "") || (attendanceType == 2 && long === "")) {
+              toast({ description: "Please, give access to location", status: "error", duration: 5000, isClosable: true });
+            } else {
+              setIsSubmitting(true);
+              //setting Qr data
+              let date = new Date();
+              let days = Math.floor(date / 8.64e7);
+              let time =
+                Date.now ||
+                function () {
+                  return +new Date();
+                };
+              date = time();
+              setCurrPath(`attendance/${selectedCourse}/${selectedSem}/${selectedSubject}/${days}`);
+              if (attendanceType == 1) setQrData(`${auth.currentUser.uid}/${selectedCourse}/${selectedSem}/${selectedSubject}/${days}/${date}`);
+              else setQrData(`${auth.currentUser.uid}/${selectedCourse}/${selectedSem}/${selectedSubject}/${days}/${date}/${lat}/${long}`);
+              setIsQrGenerated(true);
+              setIsSubmitting(false);
+              onClose();
             }
-            setIsSubmitting(true);
-            //setting Qr data
-            let date = new Date();
-            let days = Math.floor(date / 8.64e7);
-            let time =
-              Date.now ||
-              function () {
-                return +new Date();
-              };
-            date = time();
-            setCurrPath(`attendance/${selectedCourse}/${selectedSem}/${selectedSubject}/${days}`);
-            if (attendanceType == 1) setQrData(`${auth.currentUser.uid}/${selectedCourse}/${selectedSem}/${selectedSubject}/${days}/${date}`);
-            else setQrData(`${auth.currentUser.uid}/${selectedCourse}/${selectedSem}/${selectedSubject}/${days}/${date}/${lat}/${long}`);
-            setIsQrGenerated(true);
-            setIsSubmitting(false);
-            onClose();
           }}
         >
           <ModalContent>
@@ -115,7 +117,6 @@ const ModalOffline = ({ isOpen, onOpen, onClose, setIsQrGenerated, setQrData, at
             <ModalBody pb={6}>
               <FormControl>
                 <FormLabel>Course Name</FormLabel>
-                {/* <Input ref={initialRef} placeholder="First name" /> */}
                 <Select isRequired placeholder="Select Course" value={selectedCourse} onChange={(e) => setSelectedCourse(e.target.value)}>
                   {availableCourses.map((item, index) => (
                     <option key={index} value={item}>
@@ -128,7 +129,7 @@ const ModalOffline = ({ isOpen, onOpen, onClose, setIsQrGenerated, setQrData, at
               <FormControl mt={4}>
                 <FormLabel>Semester</FormLabel>
                 {/* <Input ref={initialRef} placeholder="First name" /> */}
-                <Select placeholder="Select Semester" value={selectedSem} onChange={(e) => setSelectedSem(e.target.value)}>
+                <Select isRequired placeholder="Select Semester" value={selectedSem} onChange={(e) => setSelectedSem(e.target.value)}>
                   {availableSems.map((item, index) => (
                     <option key={index} value={item}>
                       {item}
@@ -139,7 +140,7 @@ const ModalOffline = ({ isOpen, onOpen, onClose, setIsQrGenerated, setQrData, at
               <FormControl mt={4}>
                 <FormLabel>Subject Name</FormLabel>
                 {/* <Input ref={initialRef} placeholder="First name" /> */}
-                <Select placeholder="Select Subject" value={selectedSubject} onChange={(e) => setSelectedSubject(e.target.value)}>
+                <Select isRequired placeholder="Select Subject" value={selectedSubject} onChange={(e) => setSelectedSubject(e.target.value)}>
                   {availableSubjects.map((item, index) => (
                     <option key={index} value={item}>
                       {item}
@@ -149,9 +150,9 @@ const ModalOffline = ({ isOpen, onOpen, onClose, setIsQrGenerated, setQrData, at
               </FormControl>
 
               {attendanceType == 2 && (
-                <FormControl mt={4}>
-                  <Button colorScheme="red" onClick={GetLocation}>
-                    Get Location
+                <FormControl mt={9} display="flex" justifyContent="center">
+                  <Button w="70%" minW="fit-content" colorScheme={lat ? "green" : "red"} onClick={GetLocation}>
+                    Get Location {lat && <TiTick fontSize="2rem" />}
                   </Button>
                 </FormControl>
               )}
