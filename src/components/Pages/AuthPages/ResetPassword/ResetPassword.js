@@ -1,6 +1,6 @@
 import { Button, chakra, FormControl, FormLabel, Heading, Input, Stack, useSafeLayoutEffect, useToast } from "@chakra-ui/react";
 import React, { useState } from "react";
-import { Card } from "../Card";
+import { Card } from "../../../Card/Card";
 import { Layout } from "../Layout";
 import { useHistory, useLocation } from "react-router-dom";
 import { useAuth } from "../../../../contexts/AuthContext";
