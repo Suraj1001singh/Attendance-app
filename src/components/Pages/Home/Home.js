@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import AdapterMoment from "@mui/lab/AdapterMoment";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import DateTimePicker from "@mui/lab/DateTimePicker";
@@ -10,13 +10,13 @@ import LiveAttendace from "./LiveAttendace";
 import { useAttendance } from "../../../contexts/AttendanceContext";
 const Home = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [availableSubjects, setavailableSubjects] = React.useState(["mp", "ds", "os"]);
-  const [availableSems, setavailableSems] = React.useState(["sem1", "sem2", "sem3"]);
-  const [availableCourses, setavailableCourses] = React.useState(["mca", "mba", "btech"]);
   const [isQrGenerated, setIsQrGenerated] = React.useState(false);
   const [qrData, setQrData] = React.useState({});
   const [attendanceType, setAttendaceType] = React.useState(-1);
-
+  const { callback, setCallback } = useAttendance();
+  useEffect(() => {
+    setCallback(!callback);
+  }, []);
   return (
     <>
       <Grid maxW="1200px" autoRows gap={5} alignItems={"center"} justifyItems={"center"} h="89vh" m="auto">
@@ -54,14 +54,14 @@ const Home = () => {
           <LiveAttendace setIsQrGenerated={setIsQrGenerated} qrData={qrData} />
         )}
       </Grid>
-      <ModalOffline isOpen={isOpen} onOpen={onOpen} onClose={onClose} setIsQrGenerated={setIsQrGenerated} setQrData={setQrData} attendanceType={attendanceType} availableSubjects={availableSubjects} availableSems={availableSems} availableCourses={availableCourses} />
+      <ModalOffline isOpen={isOpen} onOpen={onOpen} onClose={onClose} setIsQrGenerated={setIsQrGenerated} setQrData={setQrData} attendanceType={attendanceType} />
     </>
   );
 };
-const ModalOffline = ({ isOpen, onOpen, onClose, setIsQrGenerated, setQrData, attendanceType, availableSubjects, availableSems, availableCourses }) => {
+const ModalOffline = ({ isOpen, onOpen, onClose, setIsQrGenerated, setQrData, attendanceType }) => {
   const initialRef = React.useRef();
   const finalRef = React.useRef();
-  const { liveAttendance, setCurrPath } = useAttendance();
+  const { liveAttendance, setCurrPath, availableCourses, availableSems, availableSubjects } = useAttendance();
   const toast = useToast();
   const [date, setDate] = React.useState("");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -81,6 +81,7 @@ const ModalOffline = ({ isOpen, onOpen, onClose, setIsQrGenerated, setQrData, at
       return toast({ description: "Credential not valid", status: "error", duration: 5000, isClosable: true });
     }
   };
+  console.log("hii", availableCourses, availableSems, availableSubjects);
   return (
     <>
       <Modal initialFocusRef={initialRef} finalFocusRef={finalRef} isOpen={isOpen}>
