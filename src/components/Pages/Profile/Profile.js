@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../../contexts/AuthContext";
+import { useProfile } from "../../../contexts/ProfileContext";
 import { Container  } from "@chakra-ui/react";
 import { Card } from "../../Card/Card";
 import CheckBoxList from "./checkBoxList";
@@ -10,15 +11,25 @@ const Profile = () => {
   const [isNameInvalid, setIsNameInvalid] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [enableUpdateButton, setEnableUpdateButton] = useState(true);
-  const [courses, setCourses] = useState(["BCA", "BBA", "MCA", "BTECH", "MBBS"]);
+  const [courses, setCourses] = useState([]);
   const [subjects, setSubjects] = useState([]);
-  const [semesters, setSemesters] = useState(["1", "2","3"]);
-  const { currentUser, updateUserProfile } = useAuth();
+  const [semesters, setSemesters] = useState([]);
+  const { currentUser, updateProfileName } = useAuth();
+  const { getProfile, updateProfile, profile } = useProfile();
   const toast = useToast();
+
+  useEffect (() => {
+    getProfile();
+  } , [])
+
   useEffect(() => {
     setName(currentUser?.displayName);
-  }, [currentUser])
-
+    if (profile) {
+      setSubjects(profile.subjects || []);
+      setSemesters(profile.semesters || []);
+      setCourses(profile.courses || []);
+    }
+  }, [currentUser, profile]);
   const handleNameChange = (event) => {
     let name = event.target.value;
     setName(name);
@@ -36,7 +47,8 @@ const Profile = () => {
       return;
     }
     setIsSubmitting(true);
-    updateUserProfile(name);
+    updateProfileName(name);
+    updateProfile({ subjects, semesters, courses });
     toast({ description: "Profile details updated", status: "success", duration: 5000, isClosable: true });
     setIsSubmitting(false);
   }

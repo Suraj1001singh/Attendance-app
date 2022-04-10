@@ -11,7 +11,6 @@ const Home = () => {
   const [isQrGenerated, setIsQrGenerated] = React.useState(false);
   const [qrData, setQrData] = React.useState({});
   const [attendanceType, setAttendaceType] = React.useState(-1);
-  console.log(qrData);
 
   return (
     <>
