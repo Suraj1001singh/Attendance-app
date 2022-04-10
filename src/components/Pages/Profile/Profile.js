@@ -1,13 +1,17 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../../contexts/AuthContext";
-import { Container } from "@chakra-ui/react";
+import { Checkbox, Container, Modal, ModalOverlay, ModalContent, ModalBody, ModalHeader, ModalCloseButton } from "@chakra-ui/react";
 import { Card } from "../../Card/Card";
+import CheckBoxList from "./checkBoxList";
 import { Button, chakra, FormControl, FormLabel, Heading, HStack, Input, Stack, useToast, Text, Box, Flex } from "@chakra-ui/react";
 
 const Profile = () => {
   const [name, setName] = useState("");
   const [isNameInvalid, setIsNameInvalid] = useState(false);
   const [enableUpdateButton, setEnableUpdateButton] = useState(true);
+  const [courses, setCourses] = useState(["BCA", "BBA", "MCA", "BTECH", "MBBS"]);
+  const [subjects, setSubjects] = useState([]);
+  const [semesters, setSemesters] = useState(["1", "2","3"]);
   const { currentUser } = useAuth();
   useEffect(() => {
     setName(currentUser?.displayName);
@@ -28,9 +32,10 @@ const Profile = () => {
   }
 
   const handleProfileUpdate = () => {
-    if(isNameInvalid) {
+    if(!enableUpdateButton) {
       return;
     }
+    
   }
   return (
     <>
@@ -39,7 +44,7 @@ const Profile = () => {
         <Heading textAlign="center" my={12}>
           Profile
         </Heading>
-        <Card maxW="lg" mx="auto" mt={4}>
+        <Card maxW="" mx="auto" mt={4}>
         <chakra.form>
           <Stack spacing="6">
             <FormControl id="email">
@@ -50,6 +55,9 @@ const Profile = () => {
               <FormLabel>Name</FormLabel>
               <Input isInvalid={isNameInvalid} errorBorderColor='crimson' value={name} name="text" onChange={handleNameChange}/>
             </FormControl>
+            <CheckBoxList label="Course" options={courses} setOptions={setCourses}/>
+            <CheckBoxList label="Semester" options={semesters} setOptions={setSemesters}/>
+            <CheckBoxList label="Subject" options={subjects} setOptions={setSubjects}/>
             <Button onClick={handleProfileUpdate} disabled={!enableUpdateButton} type="submit" colorScheme="primary" size="lg" fontSize="md">
               Update
             </Button>
