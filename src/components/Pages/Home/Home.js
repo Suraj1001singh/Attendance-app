@@ -118,7 +118,7 @@ const ModalOffline = ({ isOpen, onOpen, onClose, setIsQrGenerated, setQrData, at
               <FormControl>
                 <FormLabel>Course Name</FormLabel>
                 <Select isRequired placeholder="Select Course" value={selectedCourse} onChange={(e) => setSelectedCourse(e.target.value)}>
-                  {availableCourses.map((item, index) => (
+                  {availableCourses?.map((item, index) => (
                     <option key={index} value={item}>
                       {item}
                     </option>
@@ -130,7 +130,7 @@ const ModalOffline = ({ isOpen, onOpen, onClose, setIsQrGenerated, setQrData, at
                 <FormLabel>Semester</FormLabel>
                 {/* <Input ref={initialRef} placeholder="First name" /> */}
                 <Select isRequired placeholder="Select Semester" value={selectedSem} onChange={(e) => setSelectedSem(e.target.value)}>
-                  {availableSems.map((item, index) => (
+                  {availableSems?.map((item, index) => (
                     <option key={index} value={item}>
                       {item}
                     </option>
@@ -141,7 +141,7 @@ const ModalOffline = ({ isOpen, onOpen, onClose, setIsQrGenerated, setQrData, at
                 <FormLabel>Subject Name</FormLabel>
                 {/* <Input ref={initialRef} placeholder="First name" /> */}
                 <Select isRequired placeholder="Select Subject" value={selectedSubject} onChange={(e) => setSelectedSubject(e.target.value)}>
-                  {availableSubjects.map((item, index) => (
+                  {availableSubjects?.map((item, index) => (
                     <option key={index} value={item}>
                       {item}
                     </option>
