@@ -69,7 +69,7 @@ const CustomCards = ({ bgColor, textColor }) => {
         <Text color={textColor} marginBottom="3px" fontWeight="700" marginRight="6px">
           View Attendace{" "}
         </Text>
-        <BiRightArrowAlt color="#8C825A" fontSize="1.5rem" />
+        <BiRightArrowAlt color={textColor} fontSize="1.5rem" />
       </div>
     </div>
   );
@@ -91,6 +91,7 @@ const CustomListItem = () => {
 };
 
 export default Dashboard;
+
 // FEF8E6 yellow
 // DCF7E9 green
 // FFE1E2 pink
