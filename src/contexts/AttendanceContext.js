@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { auth } from "../config/firebase_config";
-import { set, ref, getDatabase, onValue } from "firebase/database";
+import { set, ref, getDatabase, onValue, get, child } from "firebase/database";
 
 const AttendanceContext = createContext();
 
@@ -13,6 +13,37 @@ export default function AttendanceContextProvider({ children }) {
   const [availableSems, setAvailableSems] = useState([]);
   const [availableSubjects, setAvailableSubjects] = useState([]);
   const [callback, setCallback] = useState(false);
+  const [attendanceFetchPath, setAttendanceFetchPath] = useState("");
+  const [fetchedSessions, setFetchedSessions] = useState([]);
+  const [fetchedData, setFetchedData] = useState("");
+  const [attendance, setAttendance] = useState([]);
+
+  const fetchSessions = () => {
+    try {
+      const dbRef = ref(getDatabase());
+      get(child(dbRef, "attend-it" + "/" + auth?.currentUser?.uid + "/" + attendanceFetchPath)).then((snapshot) => {
+        if (!snapshot.exists()) {
+          console.log("attendance not exist on selected date");
+          setAttendance([]);
+          setFetchedSessions([]);
+          setFetchedData("");
+        } else {
+          setFetchedData(snapshot.val());
+          setFetchedSessions(Object.keys(snapshot.val()));
+        }
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  const fetchAttendance = (session) => {
+    try {
+      setAttendance(Object.values(fetchedData[`${session}`]));
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 
   const getLiveAttendance = () => {
     const userRef = ref(getDatabase(), "attend-it" + "/" + auth?.currentUser.uid + "/" + currPath);
@@ -56,12 +87,16 @@ export default function AttendanceContextProvider({ children }) {
       console.log(err.message);
     }
   };
+  useEffect(() => {
+    fetchSessions();
+  }, [attendanceFetchPath]);
 
   useEffect(() => {
     fetchCourses();
     fetchSems();
     fetchSubjects();
   }, [callback]);
+
   //to get live attendance
   useEffect(() => {
     if (currPath?.trim() !== "") {
@@ -69,6 +104,6 @@ export default function AttendanceContextProvider({ children }) {
     }
   }, [currPath]);
 
-  const value = { liveAttendance, setCurrPath, availableCourses, availableSems, availableSubjects, setCallback, callback };
+  const value = { liveAttendance, setCurrPath, availableCourses, availableSems, availableSubjects, setCallback, callback, setAttendanceFetchPath, fetchedSessions, fetchAttendance, attendance, setAttendance };
   return <AttendanceContext.Provider value={value}>{children}</AttendanceContext.Provider>;
 }
