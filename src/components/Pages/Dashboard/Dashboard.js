@@ -1,24 +1,36 @@
 import React from "react";
 import { Box, Text, Grid, VStack, Button, Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
 import { BiChevronRight, BiChevronLeft, BiRightArrowAlt, BiCaretDown } from "react-icons/bi";
+import DatePicker from 'react-date-picker';
+
 const Dashboard = () => {
+  const [attendanceDate, setAttendanceDate] = React.useState(new Date());
+  const alterDate = (date, days) => {
+    let newDate = new Date(date);
+    newDate.setDate(newDate.getDate() + days);
+    return newDate;
+  }
+  const handleAttendanceDateChange = (date) => {
+    setAttendanceDate(date);
+  }
+
   return (
     <>
       <Box h="3rem" width="100%" maxW="1200px" margin="auto" alignContent="center" py="1rem">
         <div style={{ position: "relative", display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", marginBottom: "1rem" }}>
-          <BiChevronLeft cursor="pointer" color="#D53F8C" fontSize="2rem" />
-          <Text fontSize="18px" fontWeight="600">
-            Tue 3 April 2022
-          </Text>
-          <BiChevronRight cursor="pointer" color="#D53F8C" fontSize="2rem" />
+          <Button variant='outline' size="sm" onClick={() => handleAttendanceDateChange(alterDate(attendanceDate, -1))}><BiChevronLeft cursor="pointer" color="#D53F8C" fontSize="2rem"/></Button>
+          <div style={{margin: "10px"}}>
+            <DatePicker format="dd-MM-yyyy" onChange={handleAttendanceDateChange} value={attendanceDate} />
+          </div>
+          <Button variant='outline' size='sm' onClick={() => handleAttendanceDateChange(alterDate(attendanceDate, 1))}><BiChevronRight cursor="pointer" color="#D53F8C" fontSize="2rem"/></Button>
           <Menu>
             <MenuButton as={Button} rightIcon={<BiCaretDown />} position="absolute" right="1" alignSelf="flex-end" colorScheme="primary">
               Sort by
             </MenuButton>
             <MenuList>
               <MenuItem>Name</MenuItem>
-              <MenuItem>Roll No.</MenuItem>
-              <MenuItem>Qr Scanned</MenuItem>
+              <MenuItem>Roll Number</MenuItem>
+              <MenuItem>QR Scanned</MenuItem>
             </MenuList>
           </Menu>
         </div>
