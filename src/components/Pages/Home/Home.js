@@ -52,7 +52,7 @@ const Home = () => {
             </Button>
           </Grid>
         ) : (
-          <LiveAttendace setIsQrGenerated={setIsQrGenerated} qrData={qrData} />
+          <LiveAttendace setIsQrGenerated={setIsQrGenerated} qrData={qrData} setQrData={setQrData} attendanceType={attendanceType} />
         )}
       </Grid>
       <ModalOffline isOpen={isOpen} onOpen={onOpen} onClose={onClose} setIsQrGenerated={setIsQrGenerated} setQrData={setQrData} attendanceType={attendanceType} />
