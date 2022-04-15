@@ -1,11 +1,7 @@
 import React, { useEffect } from "react";
-import AdapterMoment from "@mui/lab/AdapterMoment";
-import LocalizationProvider from "@mui/lab/LocalizationProvider";
-import DateTimePicker from "@mui/lab/DateTimePicker";
-import moment from "moment";
 import { TiTick } from "react-icons/ti";
 import { auth } from "../../../config/firebase_config";
-import { TextField } from "@mui/material";
+import TimePicker from 'react-time-picker';
 import { chakra, Button, Grid, Text, useToast, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure, FormControl, FormLabel, Input, Select, toast } from "@chakra-ui/react";
 import LiveAttendace from "./LiveAttendace";
 import { useAttendance } from "../../../contexts/AttendanceContext";
@@ -65,6 +61,7 @@ const ModalOffline = ({ isOpen, onOpen, onClose, setIsQrGenerated, setQrData, at
   const { setCurrPath, availableCourses, availableSems, availableSubjects } = useAttendance();
   const toast = useToast();
   const [date, setDate] = React.useState("");
+  const [classTime, setClassTime] = React.useState(new Date());
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [selectedCourse, setSelectedCourse] = React.useState("");
   const [selectedSubject, setSelectedSubject] = React.useState("");
@@ -102,9 +99,11 @@ const ModalOffline = ({ isOpen, onOpen, onClose, setIsQrGenerated, setQrData, at
                   return +new Date();
                 };
               date = time();
-              setCurrPath(`attendance/${selectedCourse}/${selectedSem}/${selectedSubject}/${days}`);
-              if (attendanceType == 1) setQrData(`${auth.currentUser.uid}/${selectedCourse}/${selectedSem}/${selectedSubject}/${days}/${date}`);
-              else setQrData(`${auth.currentUser.uid}/${selectedCourse}/${selectedSem}/${selectedSubject}/${days}/${date}/${lat}/${long}`);
+              let classTimeEpoch = new Date(classTime).getTime() * 60;
+              setCurrPath(`attendance/${selectedCourse}/${selectedSem}/${selectedSubject}/${days}/${classTimeEpoch}`);
+              console.log(`attendance/${selectedCourse}/${selectedSem}/${selectedSubject}/${days}/${classTimeEpoch}`)
+              if (attendanceType == 1) setQrData(`${auth.currentUser.uid}/${selectedCourse}/${selectedSem}/${selectedSubject}/${days}/${classTimeEpoch}/${date}`);
+              else setQrData(`${auth.currentUser.uid}/${selectedCourse}/${selectedSem}/${selectedSubject}/${days}/${classTimeEpoch}/${date}/${lat}/${long}`);
               setIsQrGenerated(true);
               setIsSubmitting(false);
               onClose();
@@ -156,21 +155,10 @@ const ModalOffline = ({ isOpen, onOpen, onClose, setIsQrGenerated, setQrData, at
                   </Button>
                 </FormControl>
               )}
-              {/* <FormControl mt={4}>
-              <FormLabel>Select Date and Time of class</FormLabel>
-            
-              <LocalizationProvider dateAdapter={AdapterMoment}>
-                <DateTimePicker
-                  renderInput={(props) => <TextField {...props} />}
-                  label="Select Date and Time"
-                  value={date}
-                  minDate={moment(new Date())}
-                  onChange={(newValue) => {
-                    setDate(newValue);
-                  }}
-                />
-              </LocalizationProvider>
-            </FormControl> */}
+              <FormControl mt={4}>
+              <FormLabel>Select Time of class</FormLabel>
+                <TimePicker value={classTime} onChange={setClassTime}></TimePicker>
+            </FormControl>
             </ModalBody>
 
             <ModalFooter>

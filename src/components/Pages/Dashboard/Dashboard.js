@@ -7,10 +7,10 @@ import * as XLSX from "xlsx";
 
 const Dashboard = () => {
   const [attendanceDate, setAttendanceDate] = React.useState(new Date());
-  const { setAttendanceFetchPath, fetchedSessions, fetchAttendance, attendance, setAttendance, availableCourses, availableSems, availableSubjects, fetchCourseDetails } = useAttendance();
-  const [selectedCourse, setSelectedCourse] = React.useState(availableCourses?.[0]);
-  const [selectedSubject, setSelectedSubject] = React.useState(availableSubjects?.[0]);
-  const [selectedSem, setSelectedSem] = React.useState(availableSems?.[0]);
+  const { setAttendanceFetchPath, fetchedSessions, fetchAttendance, attendance, setAttendance, availableCourses, availableSems, availableSubjects, fetchCourseDetails, fetchSessions, attendanceFetchPath, selectedSession } = useAttendance();
+  const [selectedCourse, setSelectedCourse] = React.useState();
+  const [selectedSubject, setSelectedSubject] = React.useState("");
+  const [selectedSem, setSelectedSem] = React.useState("");
   const [cardColor, setCardColors] = React.useState([
     {
       bgColor: "#FEF8E6",
@@ -38,7 +38,7 @@ const Dashboard = () => {
     //binary string
     XLSX.write(workBook, { bookType: "xlsx", type: "binary" });
     //download
-    XLSX.writeFileXLSX(workBook, `${selectedCourse}-${selectedSem}-${selectedSubject}-${attendanceDate.toLocaleDateString()}-attendance.xlsx`);
+    XLSX.writeFileXLSX(workBook, `${selectedCourse}-${selectedSem}-${selectedSubject}-${attendanceDate.toLocaleDateString()}-${selectedSession}-attendance.xlsx`);
   };
 
   const alterDate = (date, days) => {
@@ -75,11 +75,17 @@ const Dashboard = () => {
     else days = new Date();
 
     setAttendanceFetchPath(`attendance/${selectedCourse}/${selectedSem}/${selectedSubject}/${days}`);
-  }, [attendanceDate]);
+  }, [attendanceDate, selectedCourse, selectedSem, selectedSubject]);
 
   useEffect(() => {
     fetchCourseDetails();
   }, []);
+
+  useEffect(() => {
+    fetchSessions();
+  }, [attendanceFetchPath]);
+
+
   return (
     <>
       <Box h="3rem" width="100%" maxW="1200px" margin="auto" alignContent="center" py="1rem">
@@ -109,6 +115,7 @@ const Dashboard = () => {
           <FormControl style={{ margin: '10px'}}>
             <FormLabel>Course Name</FormLabel>
             <Select isRequired value={selectedCourse} onChange={(e) => setSelectedCourse(e.target.value)}>
+              <option value="">Select Course</option>
               {availableCourses?.map((item, index) => (
                 <option key={index} value={item}>
                   {item}
@@ -119,8 +126,8 @@ const Dashboard = () => {
 
           <FormControl style={{ margin: '10px'}}>
             <FormLabel>Semester</FormLabel>
-            {/* <Input ref={initialRef} placeholder="First name" /> */}
             <Select isRequired value={selectedSem} onChange={(e) => setSelectedSem(e.target.value)}>
+            <option value="">Select Semester</option>
               {availableSems?.map((item, index) => (
                 <option key={index} value={item}>
                   {item}
@@ -130,14 +137,21 @@ const Dashboard = () => {
           </FormControl>
           <FormControl style={{ margin: '10px'}}>
             <FormLabel>Subject Name</FormLabel>
-            {/* <Input ref={initialRef} placeholder="First name" /> */}
             <Select isRequired value={selectedSubject} onChange={(e) => setSelectedSubject(e.target.value)}>
+            <option value="">Select Subject</option>
               {availableSubjects?.map((item, index) => (
                 <option key={index} value={item}>
                   {item}
                 </option>
               ))}
             </Select>
+          </FormControl>
+          <FormControl>
+           <FormLabel>Export</FormLabel>
+
+            <Button rightIcon={<BiDownload />} style={{ margin: '10px'}} colorScheme="green" onClick={() => downloadCSV()}>
+              Export 
+            </Button>
           </FormControl>
         </div>
         <Grid templateColumns="auto 1fr">
@@ -146,7 +160,7 @@ const Dashboard = () => {
               <CustomCards key={index} bgColor={cardColor[index % cardColor.length].bgColor} textColor={cardColor[index % cardColor.length].textColor} session={session} fetchAttendance={fetchAttendance} />
             ))}
           </VStack>
-          <VStack position="relative">
+          <VStack position="relative" style={{ overflow: "auto", maxHeight: "400px"}}>
             <VStack w="100%" h="90%" background="pink.50" borderRadius="10px" padding="1rem">
               {attendance?.length != 0 ? (
                 <>
@@ -171,9 +185,6 @@ const Dashboard = () => {
                 <div>No record found!</div>
               )}
             </VStack>
-            <Button rightIcon={<BiDownload />} position="absolute" bottom="3px" right="2px" colorScheme="green" onClick={() => downloadCSV()}>
-              Export 
-            </Button>
           </VStack>
         </Grid>
       </Box>
@@ -186,7 +197,7 @@ const CustomCards = ({ bgColor, textColor, session, fetchAttendance }) => {
     <div style={{ position: "relative", height: "180px", width: "190px", background: `${bgColor}`, borderRadius: "10px", padding: "1rem" }}>
       <Text fontWeight="500">Session at</Text>
       <Text fontSize="24px" fontWeight="700">
-        {session}
+        {new Date(session / 60).toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}
       </Text>
       <div onClick={() => fetchAttendance(session)} style={{ position: "absolute", bottom: "1rem", display: "flex", flexDirection: "row", alignItems: "center", background: "rgba(255, 255, 255, 0.25)", boxShadow: "20px 20px 40px -6px rgba(0, 0, 0, 0.2)", backdropFilter: "blur(4.5px)", WebkitBackdropFilter: "blur(4.5px)", borderRadius: "10px", padding: "6px 3px", cursor: "pointer" }}>
         <Text color={textColor} marginBottom="3px" fontWeight="700" marginRight="6px">

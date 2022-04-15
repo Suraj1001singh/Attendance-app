@@ -17,6 +17,7 @@ export default function AttendanceContextProvider({ children }) {
   const [fetchedSessions, setFetchedSessions] = useState([]);
   const [fetchedData, setFetchedData] = useState("");
   const [attendance, setAttendance] = useState([]);
+  const [selectedSession, setSelectedSession] = React.useState("");
 
   const fetchSessions = () => {
     try {
@@ -40,6 +41,7 @@ export default function AttendanceContextProvider({ children }) {
   const fetchAttendance = (session) => {
     try {
       setAttendance(Object.values(fetchedData[`${session}`]));
+      setSelectedSession(new Date(session / 60).toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }));
     } catch (error) {
       console.log(error.message);
     }
@@ -67,13 +69,6 @@ export default function AttendanceContextProvider({ children }) {
       console.log(err.message);
     }
   };
-  useEffect(() => {
-    fetchSessions();
-  }, [attendanceFetchPath]);
-
-  useEffect(() => {
-    fetchCourseDetails();
-  }, [callback]);
 
   //to get live attendance
   useEffect(() => {
@@ -82,6 +77,6 @@ export default function AttendanceContextProvider({ children }) {
     }
   }, [currPath]);
 
-  const value = { liveAttendance, setCurrPath, availableCourses, availableSems, availableSubjects, setCallback, callback, setAttendanceFetchPath, fetchedSessions, fetchAttendance, attendance, setAttendance, fetchCourseDetails };
+  const value = { liveAttendance, setCurrPath,selectedSession,  availableCourses, availableSems, availableSubjects, setCallback, callback, setAttendanceFetchPath, fetchedSessions, fetchAttendance, attendance, setAttendance, fetchCourseDetails, fetchSessions, attendanceFetchPath };
   return <AttendanceContext.Provider value={value}>{children}</AttendanceContext.Provider>;
 }
