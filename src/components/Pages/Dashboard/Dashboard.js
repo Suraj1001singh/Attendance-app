@@ -1,12 +1,13 @@
 import React, { useEffect } from "react";
 import { Box, Text, Grid, VStack, Button, Menu, MenuButton, MenuItem, MenuList, FormControl, FormLabel, Select } from "@chakra-ui/react";
-import { BiChevronRight, BiChevronLeft, BiRightArrowAlt, BiCaretDown } from "react-icons/bi";
+import { BiChevronRight, BiChevronLeft, BiRightArrowAlt, BiCaretDown, BiDownload } from "react-icons/bi";
 import DatePicker from "react-date-picker";
 import { useAttendance } from "../../../contexts/AttendanceContext";
+import * as XLSX from "xlsx";
 
 const Dashboard = () => {
   const [attendanceDate, setAttendanceDate] = React.useState(new Date());
-  const { setAttendanceFetchPath, fetchedSessions, fetchAttendance, attendance, setAttendance, availableCourses, availableSems, availableSubjects } = useAttendance();
+  const { setAttendanceFetchPath, fetchedSessions, fetchAttendance, attendance, setAttendance, availableCourses, availableSems, availableSubjects, fetchCourseDetails } = useAttendance();
   const [selectedCourse, setSelectedCourse] = React.useState(availableCourses?.[0]);
   const [selectedSubject, setSelectedSubject] = React.useState(availableSubjects?.[0]);
   const [selectedSem, setSelectedSem] = React.useState(availableSems?.[0]);
@@ -24,6 +25,22 @@ const Dashboard = () => {
       textColor: "#9D686A",
     },
   ]);
+
+  const downloadCSV = () => {
+    if(!attendance || attendance.length === 0) return;
+    const workSheet = XLSX.utils.json_to_sheet(attendance);
+    const workBook = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(workBook, workSheet, "Attendance Record");
+
+    //buffer
+    let buffer = XLSX.write(workBook, { bookType: "xlsx", type: "buffer" });
+    //binary string
+    XLSX.write(workBook, { bookType: "xlsx", type: "binary" });
+    //download
+    XLSX.writeFileXLSX(workBook, `${selectedCourse}-${selectedSem}-${selectedSubject}-${attendanceDate.toLocaleDateString()}-attendance.xlsx`);
+  };
+
   const alterDate = (date, days) => {
     let newDate = new Date(date);
     newDate.setDate(newDate.getDate() + days);
@@ -60,6 +77,9 @@ const Dashboard = () => {
     setAttendanceFetchPath(`attendance/${selectedCourse}/${selectedSem}/${selectedSubject}/${days}`);
   }, [attendanceDate]);
 
+  useEffect(() => {
+    fetchCourseDetails();
+  }, []);
   return (
     <>
       <Box h="3rem" width="100%" maxW="1200px" margin="auto" alignContent="center" py="1rem">
@@ -76,7 +96,7 @@ const Dashboard = () => {
 
           <Menu>
             <MenuButton as={Button} rightIcon={<BiCaretDown />} position="absolute" right="1" alignSelf="flex-end" colorScheme="primary">
-              Sort by
+              Sort
             </MenuButton>
             <MenuList>
               <MenuItem onClick={() => sortBy(0)}>Name</MenuItem>
@@ -86,7 +106,7 @@ const Dashboard = () => {
           </Menu>
         </div>
         <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
-          <FormControl>
+          <FormControl style={{ margin: '10px'}}>
             <FormLabel>Course Name</FormLabel>
             <Select isRequired value={selectedCourse} onChange={(e) => setSelectedCourse(e.target.value)}>
               {availableCourses?.map((item, index) => (
@@ -97,7 +117,7 @@ const Dashboard = () => {
             </Select>
           </FormControl>
 
-          <FormControl>
+          <FormControl style={{ margin: '10px'}}>
             <FormLabel>Semester</FormLabel>
             {/* <Input ref={initialRef} placeholder="First name" /> */}
             <Select isRequired value={selectedSem} onChange={(e) => setSelectedSem(e.target.value)}>
@@ -108,7 +128,7 @@ const Dashboard = () => {
               ))}
             </Select>
           </FormControl>
-          <FormControl>
+          <FormControl style={{ margin: '10px'}}>
             <FormLabel>Subject Name</FormLabel>
             {/* <Input ref={initialRef} placeholder="First name" /> */}
             <Select isRequired value={selectedSubject} onChange={(e) => setSelectedSubject(e.target.value)}>
@@ -125,8 +145,6 @@ const Dashboard = () => {
             {fetchedSessions?.map((session, index) => (
               <CustomCards key={index} bgColor={cardColor[index % cardColor.length].bgColor} textColor={cardColor[index % cardColor.length].textColor} session={session} fetchAttendance={fetchAttendance} />
             ))}
-
-            
           </VStack>
           <VStack position="relative">
             <VStack w="100%" h="90%" background="pink.50" borderRadius="10px" padding="1rem">
@@ -150,11 +168,11 @@ const Dashboard = () => {
                   ))}
                 </>
               ) : (
-                <div>LOADING</div>
+                <div>No record found!</div>
               )}
             </VStack>
-            <Button position="absolute" bottom="3px" right="2px" colorScheme="green">
-              Export To
+            <Button rightIcon={<BiDownload />} position="absolute" bottom="3px" right="2px" colorScheme="green" onClick={() => downloadCSV()}>
+              Export 
             </Button>
           </VStack>
         </Grid>
